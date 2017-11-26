@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
+	"os"
+	"math/rand"
+	"time"
 )
 
 //Create a new type o 'deck'
@@ -41,4 +44,31 @@ func (d deck) toString() string {
 
 func (d deck) saveToFile(filename string) error {
 	return ioutil.WriteFile(filename, []byte(d.toString()), 0666)
+}
+
+func newDeckFromFile(filename string) deck{
+
+	bs, err  := ioutil.ReadFile(filename)
+
+	if err != nil {
+		//Option 1 - log err and return a call to newDeck()
+		// -> Option 2 - Log the err and entirely quit the program
+		fmt.Println("ERROR:",err)
+		os.Exit(1)
+	}
+
+	s := strings.Split(string(bs),",")
+
+	return deck(s)
+}
+
+func (d deck) shuffle(){
+
+	source := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(source)
+
+	for i := range d {
+		newPosition := r.Intn(len(d) - 1)
+		d[i], d[newPosition] = d[newPosition], d[i]
+	}
 }
